@@ -1,45 +1,32 @@
 class Solution {
     public boolean canFinish(int numCourses, int[][] prerequisites) {
-        List<List<Integer>> graph = new ArrayList<>();
-        for(int i = 0; i<numCourses; i++){
-            graph.add(new ArrayList<>());
+        int[] inDegree = new int[numCourses];
+        List<List<Integer>> adj = new ArrayList<>();
+        for(int i=0;i<numCourses;i++) adj.add(new ArrayList<>());
+
+        for(int[] pre: prerequisites) {
+            inDegree[pre[1]]++;
+            adj.get(pre[0]).add(pre[1]);
         }
 
-        int[] visiting = new int[numCourses];
-
-        for(int i = 0; i < prerequisites.length; i++){
-            int course = prerequisites[i][0];
-            int prereq = prerequisites[i][1];
-
-            graph.get(prereq).add(course);
-            visiting[course]++;
-        }
-
-        Queue<Integer> queue = new LinkedList<>();
-        for(int i = 0; i<numCourses; i++){
-            if(visiting[i] == 0){
-                queue.add(i);
+        Queue<Integer> q = new LinkedList<>();
+        for(int i=0; i< numCourses; i++){
+            if(inDegree[i]==0){
+                q.add(i);
             }
         }
 
-        int coursesTaken = 0;
-
-        while(!queue.isEmpty()){
-            int currentCourse = queue.poll();
-            coursesTaken++;
-
-            List<Integer> dependentCourses = graph.get(currentCourse);
-
-            for(int i = 0; i<dependentCourses.size(); i++){
-                int nextCourse = dependentCourses.get(i);
-                visiting[nextCourse]--;
-
-                if( visiting[nextCourse]==0){
-                    queue.add(nextCourse);
+        int finish =0;
+        while(!q.isEmpty()){
+            int node = q.poll();
+            finish++;
+            for(int nei : adj.get(node)){
+                inDegree[nei]--;
+                if(inDegree[nei]==0){
+                    q.add(nei);
                 }
             }
         }
-
-        return coursesTaken == numCourses;
+        return finish == numCourses;
     }
 }
